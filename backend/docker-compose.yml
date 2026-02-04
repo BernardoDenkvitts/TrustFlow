@@ -1,0 +1,27 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: trustflow-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: trustflow
+      POSTGRES_PASSWORD: trustflow
+      POSTGRES_DB: trustflow
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U trustflow"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  anvil:
+    image: ghcr.io/foundry-rs/foundry:latest
+    container_name: trustflow-anvil
+    command: ["anvil", "--host", "0.0.0.0"]
+    ports:
+      - "8545:8545"
+
+volumes:
+  postgres_data:

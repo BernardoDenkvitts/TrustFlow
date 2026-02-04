@@ -1,0 +1,56 @@
+# ==========================
+# Python
+# ==========================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+*.manifest
+*.spec
+
+# ==========================
+# Virtual Environments
+# ==========================
+.venv/
+venv/
+ENV/
+env/
+
+# ==========================
+# UV (Package Manager)
+# ==========================
+.uv/
+
+# ==========================
+# IDE / Editors
+# ==========================
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+.settings/
+
+# ==========================
+# Testing / Linting
+# ==========================
+.pytest_cache/
+.ruff_cache/
+.coverage
+
+# ==========================
+# Environment Variables
+# ==========================
+.env
+.env.local
+.env.*.local
+*.env
+
