@@ -28,9 +28,7 @@ async def get_dispute_repository(
 
 
 async def get_dispute_service(
-    dispute_repository: Annotated[
-        DisputeRepository, Depends(get_dispute_repository)
-    ],
+    dispute_repository: Annotated[DisputeRepository, Depends(get_dispute_repository)],
     agreement_repository: Annotated[
         AgreementRepository, Depends(get_agreement_repository)
     ],

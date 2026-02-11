@@ -41,7 +41,7 @@ class AgreementResponse(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-    agreement_id: Decimal = Field(description="Unique agreement identifier (uint256)")
+    agreement_id: str = Field(description="Unique agreement identifier (hex string)")
     payer_id: uuid.UUID = Field(description="UUID of the payer")
     payee_id: uuid.UUID = Field(description="UUID of the payee")
     arbitrator_id: uuid.UUID | None = Field(
@@ -57,29 +57,17 @@ class AgreementResponse(BaseModel):
     created_tx_hash: str | None = Field(
         description="Transaction hash for on-chain creation"
     )
-    funded_tx_hash: str | None = Field(
-        description="Transaction hash for funding"
-    )
-    released_tx_hash: str | None = Field(
-        description="Transaction hash for release"
-    )
-    refunded_tx_hash: str | None = Field(
-        description="Transaction hash for refund"
-    )
+    funded_tx_hash: str | None = Field(description="Transaction hash for funding")
+    released_tx_hash: str | None = Field(description="Transaction hash for release")
+    refunded_tx_hash: str | None = Field(description="Transaction hash for refund")
 
     # Blockchain timestamps
     created_onchain_at: datetime | None = Field(
         description="When the agreement was created on-chain"
     )
-    funded_at: datetime | None = Field(
-        description="When the agreement was funded"
-    )
-    released_at: datetime | None = Field(
-        description="When the payment was released"
-    )
-    refunded_at: datetime | None = Field(
-        description="When the payment was refunded"
-    )
+    funded_at: datetime | None = Field(description="When the agreement was funded")
+    released_at: datetime | None = Field(description="When the payment was released")
+    refunded_at: datetime | None = Field(description="When the payment was refunded")
 
     # Database timestamps
     created_at: datetime = Field(description="When the agreement was created")

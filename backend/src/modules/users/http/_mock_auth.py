@@ -8,7 +8,7 @@ import uuid
 
 # Mocked user ID for development/testing
 # This constant is used across the application for testing purposes
-MOCKED_USER_ID = uuid.UUID("00000000-0000-0000-0000-000000000001")
+MOCKED_USER_ID = uuid.UUID("11111111-1111-1111-1111-111111111111")
 
 
 def get_mock_current_user_id() -> uuid.UUID:

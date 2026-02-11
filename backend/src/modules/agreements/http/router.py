@@ -1,6 +1,6 @@
 """Agreements API router."""
 
-from decimal import Decimal
+
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query
@@ -79,7 +79,7 @@ async def list_agreements(
     description="Get an agreement by its ID. User must be a participant.",
 )
 async def get_agreement(
-    agreement_id: Decimal,
+    agreement_id: str,
     service: Annotated[AgreementService, Depends(get_agreement_service)],
 ) -> AgreementResponse:
     """Get an agreement by ID."""
@@ -100,7 +100,7 @@ async def get_agreement(
     description="Submit a draft agreement for on-chain creation (Locks agreement terms).",
 )
 async def submit_agreement(
-    agreement_id: Decimal,
+    agreement_id: str,
     service: Annotated[AgreementService, Depends(get_agreement_service)],
 ) -> AgreementResponse:
     """Locks agreement terms and awaits on-chain funding."""

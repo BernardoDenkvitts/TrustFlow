@@ -1,6 +1,6 @@
 import uuid
 from decimal import Decimal
-from unittest.mock import AsyncMock, Mock
+from unittest.mock import AsyncMock
 
 import pytest
 
@@ -9,9 +9,8 @@ from src.modules.agreements.core.models import Agreement
 from src.modules.agreements.persistence import AgreementRepository
 from src.modules.disputes.core.enums import DisputeResolution, DisputeStatus
 from src.modules.disputes.core.exceptions import (
-    DisputeNotFoundError, 
-    UnauthorizedArbitratorError, 
-    DisputeAlreadyResolvedError
+    DisputeAlreadyResolvedError,
+    UnauthorizedArbitratorError,
 )
 from src.modules.disputes.core.models import Dispute
 from src.modules.disputes.core.services import DisputeService
@@ -45,7 +44,7 @@ async def test_resolve_dispute_success_release(
 ):
     """Test resolving a dispute successfully."""
     # Setup
-    agreement_id = Decimal("123")
+    agreement_id = "0x" + "a1" * 32
     arbitrator_id = uuid.uuid4()
     payer_id = uuid.uuid4()
     payee_id = uuid.uuid4()
@@ -102,7 +101,7 @@ async def test_resolve_dispute_unauthorized(
 ):
     """Test that non-arbitrator cannot resolve dispute."""
     # Setup
-    agreement_id = Decimal("123")
+    agreement_id = "0x" + "a1" * 32
     arbitrator_id = uuid.uuid4()
     other_user_id = uuid.uuid4()
 
@@ -111,7 +110,7 @@ async def test_resolve_dispute_unauthorized(
         arbitrator_id=arbitrator_id,
         status=AgreementStatus.DISPUTED,
     )
-    
+
     mock_agreement_repo.find_by_id.return_value = agreement
 
     # Action & Assert
@@ -131,7 +130,7 @@ async def test_resolve_dispute_already_resolved(
 ):
     """Test resolving a dispute that is already resolved."""
     # Setup
-    agreement_id = Decimal("123")
+    agreement_id = "0x" + "a1" * 32
     arbitrator_id = uuid.uuid4()
     dispute_id = uuid.uuid4()
 
@@ -140,11 +139,11 @@ async def test_resolve_dispute_already_resolved(
         arbitrator_id=arbitrator_id,
         status=AgreementStatus.DISPUTED,
     )
-    
+
     dispute = Dispute(
         id=dispute_id,
         agreement_id=agreement_id,
-        status=DisputeStatus.RESOLVED, # Already resolved
+        status=DisputeStatus.RESOLVED,  # Already resolved
     )
 
     mock_agreement_repo.find_by_id.return_value = agreement

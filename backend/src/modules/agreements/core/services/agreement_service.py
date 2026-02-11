@@ -2,7 +2,6 @@
 
 import secrets
 import uuid
-from decimal import Decimal
 
 from src.modules.agreements.core.enums import AgreementStatus, ArbitrationPolicy
 from src.modules.agreements.core.exceptions import (
@@ -35,16 +34,13 @@ class AgreementService:
         self._agreement_repo = agreement_repository
         self._user_repo = user_repository
 
-    def _generate_agreement_id(self) -> Decimal:
-        """Generate a unique agreement ID (uint256).
+    def _generate_agreement_id(self) -> str:
+        """Generate a unique agreement ID as a hex string.
 
         Returns:
-            A random uint256 as Decimal.
+            A random 256-bit identifier as '0x' + 64 hex chars.
         """
-        # Generate a random 256-bit number
-        random_bytes = secrets.token_bytes(32)
-        random_int = int.from_bytes(random_bytes, "big")
-        return Decimal(random_int)
+        return "0x" + secrets.token_bytes(32).hex()
 
     def _is_participant(self, agreement: Agreement, user_id: uuid.UUID) -> bool:
         """Check if a user is a participant in an agreement.
@@ -144,7 +140,7 @@ class AgreementService:
 
     async def get_agreement_by_id(
         self,
-        agreement_id: Decimal,
+        agreement_id: str,
         user_id: uuid.UUID,
     ) -> Agreement:
         """Get an agreement by ID with authorization check.
@@ -187,7 +183,7 @@ class AgreementService:
 
     async def submit_agreement(
         self,
-        agreement_id: Decimal,
+        agreement_id: str,
         user_id: uuid.UUID,
     ) -> Agreement:
         """Locks agreement terms and awaits on-chain funding.

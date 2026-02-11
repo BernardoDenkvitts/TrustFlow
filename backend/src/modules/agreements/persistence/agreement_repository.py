@@ -23,7 +23,7 @@ class AgreementRepository:
 
     async def create(
         self,
-        agreement_id: Decimal,
+        agreement_id: str,
         payer_id: uuid.UUID,
         payee_id: uuid.UUID,
         amount_wei: Decimal,
@@ -56,7 +56,7 @@ class AgreementRepository:
         await self._session.flush()
         return agreement
 
-    async def find_by_id(self, agreement_id: Decimal) -> Agreement | None:
+    async def find_by_id(self, agreement_id: str) -> Agreement | None:
         """Find an agreement by its ID.
 
         Args:

@@ -43,7 +43,7 @@ def agreement_service(
 def sample_agreement() -> Agreement:
     """Create a sample agreement for testing."""
     agreement = MagicMock(spec=Agreement)
-    agreement.agreement_id = Decimal("123456789")
+    agreement.agreement_id = "0x" + "a1" * 32
     agreement.payer_id = uuid.UUID("00000000-0000-0000-0000-000000000001")
     agreement.payee_id = uuid.UUID("00000000-0000-0000-0000-000000000002")
     agreement.arbitrator_id = None
@@ -85,7 +85,7 @@ class TestCreateAgreement:
         with patch.object(
             agreement_service,
             "_generate_agreement_id",
-            return_value=Decimal("123456789"),
+            return_value="0x" + "a1" * 32,
         ):
             result = await agreement_service.create_agreement(
                 payer_id=payer_id,
@@ -187,7 +187,7 @@ class TestGetAgreementById:
     ) -> None:
         """Should raise AgreementNotFoundError when agreement doesn't exist."""
         mock_agreement_repo.find_by_id = AsyncMock(return_value=None)
-        agreement_id = Decimal("999999")
+        agreement_id = "0x" + "ff" * 32
 
         with pytest.raises(AgreementNotFoundError) as exc_info:
             await agreement_service.get_agreement_by_id(

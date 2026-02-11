@@ -1,7 +1,6 @@
 """Dispute service implementing business logic."""
 
 import uuid
-from decimal import Decimal
 
 from src.modules.agreements.core.exceptions import AgreementNotFoundError
 from src.modules.agreements.persistence import AgreementRepository
@@ -57,7 +56,7 @@ class DisputeService:
 
     async def get_dispute_for_agreement(
         self,
-        agreement_id: Decimal,
+        agreement_id: str,
         user_id: uuid.UUID,
     ) -> Dispute:
         """Get the dispute for an agreement.
@@ -92,7 +91,7 @@ class DisputeService:
 
     async def resolve_dispute(
         self,
-        agreement_id: Decimal,
+        agreement_id: str,
         user_id: uuid.UUID,
         resolution: DisputeResolution,
         justification: str,

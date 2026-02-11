@@ -1,6 +1,6 @@
 """Disputes API router."""
 
-from decimal import Decimal
+
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
@@ -19,7 +19,7 @@ router = APIRouter(prefix="/agreements", tags=["disputes"])
     description="Get the dispute details for an agreement. User must be a participant.",
 )
 async def get_dispute(
-    agreement_id: Decimal,
+    agreement_id: str,
     service: Annotated[DisputeService, Depends(get_dispute_service)],
 ) -> DisputeResponse:
     """Get the dispute for an agreement."""
@@ -40,7 +40,7 @@ async def get_dispute(
     description="Resolve a dispute. Only the arbitrator can resolve disputes.",
 )
 async def resolve_dispute(
-    agreement_id: Decimal,
+    agreement_id: str,
     request: ResolveDisputeRequest,
     service: Annotated[DisputeService, Depends(get_dispute_service)],
 ) -> DisputeResponse:

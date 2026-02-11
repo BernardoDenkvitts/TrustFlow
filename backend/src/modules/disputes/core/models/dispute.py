@@ -2,9 +2,8 @@
 
 import uuid
 from datetime import datetime
-from decimal import Decimal
 
-from sqlalchemy import CheckConstraint, ForeignKey, Numeric, Text, func
+from sqlalchemy import CheckConstraint, ForeignKey, String, Text, func
 from sqlalchemy.dialects.postgresql import ENUM, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -30,8 +29,8 @@ class Dispute(Base):
     )
 
     # Foreign key to agreement (unique - 1 dispute per agreement)
-    agreement_id: Mapped[Decimal] = mapped_column(
-        Numeric(78, 0),
+    agreement_id: Mapped[str] = mapped_column(
+        String(66),
         ForeignKey("agreements.agreement_id"),
         nullable=False,
         unique=True,

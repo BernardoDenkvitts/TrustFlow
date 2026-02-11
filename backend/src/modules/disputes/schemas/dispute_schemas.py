@@ -2,7 +2,6 @@
 
 import uuid
 from datetime import datetime
-from decimal import Decimal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -15,7 +14,7 @@ class DisputeResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: uuid.UUID = Field(description="Unique dispute identifier")
-    agreement_id: Decimal = Field(description="Agreement ID this dispute belongs to")
+    agreement_id: str = Field(description="Agreement ID this dispute belongs to")
     opened_by: uuid.UUID = Field(description="UUID of the user who opened the dispute")
     status: DisputeStatus = Field(description="Current status of the dispute")
     resolution: DisputeResolution | None = Field(

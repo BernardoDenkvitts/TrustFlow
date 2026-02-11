@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime
 from decimal import Decimal
 
-from sqlalchemy import CheckConstraint, ForeignKey, Numeric, Text, func
+from sqlalchemy import CheckConstraint, ForeignKey, Numeric, String, Text, func
 from sqlalchemy.dialects.postgresql import ENUM, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -17,9 +17,9 @@ class Agreement(Base):
 
     __tablename__ = "agreements"
 
-    # Primary key: uint256 from smart contract
-    agreement_id: Mapped[Decimal] = mapped_column(
-        Numeric(78, 0),
+    # Primary key: bytes32 identifier from smart contract (hex string)
+    agreement_id: Mapped[str] = mapped_column(
+        String(66),
         primary_key=True,
         autoincrement=False,
     )

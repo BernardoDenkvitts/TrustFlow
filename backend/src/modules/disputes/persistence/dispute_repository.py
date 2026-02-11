@@ -2,7 +2,6 @@
 
 import uuid
 from datetime import datetime
-from decimal import Decimal
 
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
@@ -37,7 +36,7 @@ class DisputeRepository:
         result = await self._session.execute(stmt)
         return result.scalar_one_or_none()
 
-    async def find_by_agreement_id(self, agreement_id: Decimal) -> Dispute | None:
+    async def find_by_agreement_id(self, agreement_id: str) -> Dispute | None:
         """Find a dispute by its agreement ID.
 
         Args:
@@ -52,12 +51,12 @@ class DisputeRepository:
 
     async def create(
         self,
-        agreement_id: Decimal,
+        agreement_id: str,
         opened_by: uuid.UUID,
     ) -> Dispute:
         """Create a new dispute.
 
-        This is typically called by the blockchain sync worker when
+        This is called by the blockchain sync worker when
         processing a DISPUTE_OPENED event.
 
         Args:
