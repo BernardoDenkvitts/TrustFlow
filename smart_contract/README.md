@@ -18,11 +18,18 @@ The TrustFlowEscrow contract provides:
 
 ## Quick Start
 
-### Install Dependencies
+### Installation
 
-```bash
-forge install
-```
+1. **Initialize Submodules** (after cloning):
+   ```bash
+   cd TrustFlow/smart_contract
+   git submodule update --init --recursive
+   ```
+
+2. **Install dependencies**:
+   ```bash
+   forge install
+   ```
 
 ### Compile
 
