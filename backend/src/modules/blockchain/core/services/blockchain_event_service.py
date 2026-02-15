@@ -61,7 +61,9 @@ class BlockchainEventService:
         is_new = await self._event_repo.create_if_not_exists(event)
         
         if not is_new:
-            logger.info(f"Event already processed: {event.tx_hash} index {event.log_index}")
+            logger.info(
+                f"Event already processed: {event.tx_hash} index {event.log_index}"
+            )
             return
 
         # Process business logic
@@ -96,7 +98,7 @@ class BlockchainEventService:
             logger.error(f"Agreement {event.agreement_id} not found for CREATED event")
             return
 
-        if agreement.status == AgreementStatus.PENDING_FUNDING:
+        if agreement.status == AgreementStatus.DRAFT:
             agreement.created_tx_hash = event.tx_hash
             agreement.created_onchain_at = event.processed_at  # Approximate
             await self._agreement_repo.update_status(agreement, AgreementStatus.CREATED)
@@ -121,7 +123,9 @@ class BlockchainEventService:
 
         # Update Agreement Status
         if agreement.status != AgreementStatus.DISPUTED:
-            await self._agreement_repo.update_status(agreement, AgreementStatus.DISPUTED)
+            await self._agreement_repo.update_status(
+                agreement, AgreementStatus.DISPUTED
+            )
 
         # Create Dispute Record
         opener_address = event.payload["args"]["openedBy"] # Arguments are named in ABI
@@ -137,7 +141,9 @@ class BlockchainEventService:
             )
             return
 
-        existing_dispute = await self._dispute_repo.find_by_agreement_id(agreement.agreement_id)
+        existing_dispute = await self._dispute_repo.find_by_agreement_id(
+            agreement.agreement_id
+        )
         if not existing_dispute:
             await self._dispute_repo.create(
                 agreement_id=agreement.agreement_id,
