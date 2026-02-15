@@ -12,16 +12,16 @@ Creates all tables:
 - chain_sync_state
 """
 
-from typing import Sequence, Union
+from collections.abc import Sequence
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 from sqlalchemy.dialects import postgresql
 
 revision: str = "001_initial_schema"
-down_revision: Union[str, None] = None
-branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
+down_revision: str | None = None
+branch_labels: str | Sequence[str] | None = None
+depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:
@@ -82,16 +82,12 @@ def upgrade() -> None:
     # agreements table
     op.create_table(
         "agreements",
-        sa.Column("agreement_id", sa.Numeric(78, 0), primary_key=True, autoincrement=False),
         sa.Column(
-            "payer_id", sa.UUID(), sa.ForeignKey("users.id"), nullable=False
+            "agreement_id", sa.Numeric(78, 0), primary_key=True, autoincrement=False
         ),
-        sa.Column(
-            "payee_id", sa.UUID(), sa.ForeignKey("users.id"), nullable=False
-        ),
-        sa.Column(
-            "arbitrator_id", sa.UUID(), sa.ForeignKey("users.id"), nullable=True
-        ),
+        sa.Column("payer_id", sa.UUID(), sa.ForeignKey("users.id"), nullable=False),
+        sa.Column("payee_id", sa.UUID(), sa.ForeignKey("users.id"), nullable=False),
+        sa.Column("arbitrator_id", sa.UUID(), sa.ForeignKey("users.id"), nullable=True),
         sa.Column(
             "arbitration_policy",
             arbitration_policy_enum,
@@ -264,4 +260,3 @@ def downgrade() -> None:
     op.execute("DROP TYPE IF EXISTS dispute_status_enum")
     op.execute("DROP TYPE IF EXISTS agreement_status_enum")
     op.execute("DROP TYPE IF EXISTS arbitration_policy_enum")
-

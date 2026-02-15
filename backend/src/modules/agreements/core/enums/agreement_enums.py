@@ -18,8 +18,6 @@ class AgreementStatus(str, Enum):
     """Status of an agreement in its lifecycle.
 
     DRAFT: Initial state, agreement created off-chain.
-    PENDING_FUNDING: Submitted for on-chain creation, waiting for
-    blockchain confirmation.
     CREATED: Agreement created on-chain, ready for funding.
     FUNDED: Payment deposited in escrow.
     DISPUTED: Dispute opened, funds locked.
@@ -28,7 +26,6 @@ class AgreementStatus(str, Enum):
     """
 
     DRAFT = "DRAFT"
-    PENDING_FUNDING = "PENDING_FUNDING"
     CREATED = "CREATED"
     FUNDED = "FUNDED"
     DISPUTED = "DISPUTED"

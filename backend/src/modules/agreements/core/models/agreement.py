@@ -4,7 +4,16 @@ import uuid
 from datetime import datetime
 from decimal import Decimal
 
-from sqlalchemy import CheckConstraint, ForeignKey, Numeric, String, Text, func
+from sqlalchemy import (
+    CheckConstraint,
+    DateTime,
+    ForeignKey,
+    Index,
+    Numeric,
+    String,
+    Text,
+    func,
+)
 from sqlalchemy.dialects.postgresql import ENUM, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -63,17 +72,27 @@ class Agreement(Base):
     refunded_tx_hash: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     # Blockchain timestamps (populated by blockchain events)
-    created_onchain_at: Mapped[datetime | None] = mapped_column(nullable=True)
-    funded_at: Mapped[datetime | None] = mapped_column(nullable=True)
-    released_at: Mapped[datetime | None] = mapped_column(nullable=True)
-    refunded_at: Mapped[datetime | None] = mapped_column(nullable=True)
+    created_onchain_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    funded_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    released_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    refunded_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
 
     # Database timestamps
     created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
         nullable=False,
         server_default=func.now(),
     )
     updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
         nullable=False,
         server_default=func.now(),
         onupdate=func.now(),
@@ -92,6 +111,7 @@ class Agreement(Base):
             "(arbitration_policy = 'WITH_ARBITRATOR' AND arbitrator_id IS NOT NULL)",
             name="ck_agreements_policy_arbitrator",
         ),
+        Index("idx_agreements_status", "status"),
     )
 
     def __repr__(self) -> str:

@@ -2,6 +2,7 @@
 
 import secrets
 import uuid
+from decimal import Decimal
 
 from src.modules.agreements.core.enums import AgreementStatus, ArbitrationPolicy
 from src.modules.agreements.core.exceptions import (
@@ -180,51 +181,3 @@ class AgreementService:
             List of Agreement entities.
         """
         return await self._agreement_repo.list_by_user(user_id, status_filter)
-
-    async def submit_agreement(
-        self,
-        agreement_id: str,
-        user_id: uuid.UUID,
-    ) -> Agreement:
-        """Locks agreement terms and awaits on-chain funding.
-
-        Transitions the agreement from DRAFT to PENDING_FUNDING.
-        Only the payer can submit an agreement.
-
-        Args:
-            agreement_id: The agreement identifier.
-            user_id: The user submitting the agreement.
-
-        Returns:
-            The updated Agreement entity.
-
-        Raises:
-            AgreementNotFoundError: If the agreement is not found.
-            UnauthorizedAgreementAccessError: If user is not a participant.
-            InvalidStateTransitionError: If not in DRAFT status or user is not payer.
-        """
-        # Get agreement with authorization check
-        agreement = await self.get_agreement_by_id(agreement_id, user_id)
-
-        # Only payer can submit
-        if agreement.payer_id != user_id:
-            raise InvalidStateTransitionError(
-                current_status=agreement.status,
-                target_status=AgreementStatus.PENDING_FUNDING,
-                reason="Only the payer can submit an agreement",
-            )
-
-        # Only from DRAFT status
-        if agreement.status != AgreementStatus.DRAFT:
-            raise InvalidStateTransitionError(
-                current_status=agreement.status,
-                target_status=AgreementStatus.PENDING_FUNDING,
-                reason="Agreement can only be submitted from DRAFT status",
-            )
-
-        # Transition to PENDING_FUNDING
-        updated_agreement = await self._agreement_repo.update_status(
-            agreement, AgreementStatus.PENDING_FUNDING
-        )
-
-        return updated_agreement
