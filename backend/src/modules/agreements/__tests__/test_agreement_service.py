@@ -11,9 +11,9 @@ from src.modules.agreements.core.enums import AgreementStatus, ArbitrationPolicy
 from src.modules.agreements.core.exceptions import (
     AgreementNotFoundError,
     InvalidArbitrationPolicyError,
-    InvalidStateTransitionError,
     SelfDealError,
     UnauthorizedAgreementAccessError,
+    MaxDraftAgreementsError,
 )
 from src.modules.agreements.core.models import Agreement
 from src.modules.agreements.core.services import AgreementService
@@ -81,6 +81,7 @@ class TestCreateAgreement:
 
         mock_user_repo.find_by_id = AsyncMock(return_value=sample_user)
         mock_agreement_repo.create = AsyncMock(return_value=sample_agreement)
+        mock_agreement_repo.count_by_user_and_status = AsyncMock(return_value=0)
 
         with patch.object(
             agreement_service,
@@ -158,6 +159,29 @@ class TestCreateAgreement:
         assert exc_info.value.policy == ArbitrationPolicy.WITH_ARBITRATOR
         assert exc_info.value.has_arbitrator is False
 
+    @pytest.mark.asyncio
+    async def test_create_agreement_max_drafts_reached(
+        self,
+        agreement_service: AgreementService,
+        mock_agreement_repo: MagicMock,
+    ) -> None:
+        """Should raise MaxDraftAgreementsError when draft limit is reached."""
+        payer_id = uuid.UUID("00000000-0000-0000-0000-000000000001")
+        payee_id = uuid.UUID("00000000-0000-0000-0000-000000000002")
+
+        mock_agreement_repo.count_by_user_and_status = AsyncMock(return_value=30)
+
+        with pytest.raises(MaxDraftAgreementsError) as exc_info:
+            await agreement_service.create_agreement(
+                payer_id=payer_id,
+                payee_id=payee_id,
+                amount_wei=Decimal("1000000000000000000"),
+                arbitration_policy=ArbitrationPolicy.NONE,
+            )
+
+        assert exc_info.value.user_id == str(payer_id)
+        assert exc_info.value.max_drafts == 30
+
 
 class TestGetAgreementById:
     """Tests for AgreementService.get_agreement_by_id method."""
@@ -215,3 +239,49 @@ class TestGetAgreementById:
             )
 
         assert str(non_participant_id) in str(exc_info.value.user_id)
+
+
+class TestListUserAgreements:
+    """Tests for AgreementService.list_user_agreements method."""
+
+    @pytest.mark.asyncio
+    async def test_list_user_agreements_success(
+        self,
+        agreement_service: AgreementService,
+        mock_agreement_repo: MagicMock,
+        sample_agreement: Agreement,
+    ) -> None:
+        """Should return list of agreements and total count."""
+        user_id = uuid.UUID("00000000-0000-0000-0000-000000000001")
+        mock_agreement_repo.list_by_user = AsyncMock(
+            return_value=([sample_agreement], 1)
+        )
+
+        items, total = await agreement_service.list_user_agreements(
+            user_id=user_id,
+            page=1,
+            page_size=10,
+        )
+
+        assert items == [sample_agreement]
+        assert total == 1
+        mock_agreement_repo.list_by_user.assert_awaited_with(user_id, None, 10, 0)
+
+    @pytest.mark.asyncio
+    async def test_list_user_agreements_pagination(
+        self,
+        agreement_service: AgreementService,
+        mock_agreement_repo: MagicMock,
+    ) -> None:
+        """Should calculate offset correctly based on page and page_size."""
+        user_id = uuid.UUID("00000000-0000-0000-0000-000000000001")
+        mock_agreement_repo.list_by_user = AsyncMock(return_value=([], 0))
+
+        await agreement_service.list_user_agreements(
+            user_id=user_id,
+            page=3,
+            page_size=20,
+        )
+
+        # page 3, size 20 -> offset should be (3-1)*20 = 40
+        mock_agreement_repo.list_by_user.assert_awaited_with(user_id, None, 20, 40)

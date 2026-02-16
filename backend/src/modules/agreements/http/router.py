@@ -56,13 +56,17 @@ async def list_agreements(
         AgreementStatus | None,
         Query(description="Filter by agreement status"),
     ] = None,
+    page: Annotated[int, Query(ge=1, description="Page number")] = 1,
+    page_size: Annotated[int, Query(ge=1, le=100, description="Items per page")] = 10,
 ) -> AgreementListResponse:
     """List all agreements where the user is a participant."""
-    agreements = await service.list_user_agreements(user_id, status)
+    agreements, total = await service.list_user_agreements(
+        user_id, status, page, page_size
+    )
 
     return AgreementListResponse(
         items=[AgreementResponse.model_validate(a) for a in agreements],
-        total=len(agreements),
+        total=total,
     )
 
 

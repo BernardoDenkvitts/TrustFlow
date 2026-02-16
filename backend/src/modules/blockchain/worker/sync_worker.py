@@ -290,7 +290,8 @@ class ChainSyncWorker:
                 agreement_id = event_data.get("args", {}).get("agreementId", "unknown")
                 logger.warning(
                     f"Skipping orphaned on-chain event: "
-                    f"agreement_id={agreement_id}, tx={event_data.get('transactionHash')}"
+                    f"agreement_id={agreement_id},"
+                    f" tx={event_data.get('transactionHash')}"
                 )
 
         # Update State

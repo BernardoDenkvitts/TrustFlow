@@ -8,9 +8,9 @@ from src.modules.agreements.core.enums import AgreementStatus, ArbitrationPolicy
 from src.modules.agreements.core.exceptions import (
     AgreementNotFoundError,
     InvalidArbitrationPolicyError,
-    InvalidStateTransitionError,
     SelfDealError,
     UnauthorizedAgreementAccessError,
+    MaxDraftAgreementsError,
 )
 from src.modules.agreements.core.models import Agreement
 from src.modules.agreements.persistence import AgreementRepository
@@ -118,6 +118,13 @@ class AgreementService:
                 has_arbitrator=False,
             )
 
+        # Validate draft limit
+        draft_count = await self._agreement_repo.count_by_user_and_status(
+            payer_id, AgreementStatus.DRAFT
+        )
+        if draft_count >= 30:
+            raise MaxDraftAgreementsError(str(payer_id), 30)
+
         # Validate all users exist
         await self._validate_user_exists(payer_id)
         await self._validate_user_exists(payee_id)
@@ -170,14 +177,25 @@ class AgreementService:
         self,
         user_id: uuid.UUID,
         status_filter: AgreementStatus | None = None,
-    ) -> list[Agreement]:
+        page: int = 1,
+        page_size: int = 10,
+    ) -> tuple[list[Agreement], int]:
         """List all agreements where the user is a participant.
 
         Args:
             user_id: The user's UUID.
             status_filter: Optional status to filter by.
+            page: Page number (1-based).
+            page_size: Number of items per page.
 
         Returns:
-            List of Agreement entities.
+            A tuple containing:
+            - List of Agreement entities.
+            - Total count of agreements.
         """
-        return await self._agreement_repo.list_by_user(user_id, status_filter)
+        limit = page_size
+        offset = (page - 1) * page_size
+
+        return await self._agreement_repo.list_by_user(
+            user_id, status_filter, limit, offset
+        )

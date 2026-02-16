@@ -2,7 +2,15 @@
 
 from datetime import datetime
 
-from sqlalchemy import BigInteger, Integer, Text, UniqueConstraint, func, text
+from sqlalchemy import (
+    BigInteger,
+    DateTime,
+    Integer,
+    Text,
+    UniqueConstraint,
+    func,
+    text,
+)
 from sqlalchemy.orm import Mapped, mapped_column
 
 from src.shared.database.base import Base
@@ -31,6 +39,7 @@ class ChainSyncState(Base):
     )
 
     updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
         nullable=False,
         server_default=func.now(),
         onupdate=func.now(),

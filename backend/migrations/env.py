@@ -3,21 +3,23 @@
 import asyncio
 from logging.config import fileConfig
 
+from alembic import context
 from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
-from alembic import context
-
 from src.config import settings
-from src.shared.database.base import Base
 
-# Import all models here so they are registered with Base.metadata
-# This will be populated as we create modules
+from src.shared.database.base import Base
+from src.modules.users.core.models.user import User
+from src.modules.agreements.core.models.agreement import Agreement
+from src.modules.disputes.core.models.dispute import Dispute
+from src.modules.blockchain.core.models.chain_sync_state import ChainSyncState
+from src.modules.blockchain.core.models.onchain_event import OnchainEvent
+from src.modules.auth.core.models.session import Session
 
 
 config = context.config
 
-# Set the database URL programmatically
 config.set_main_option("sqlalchemy.url", settings.database_url)
 
 if config.config_file_name is not None:

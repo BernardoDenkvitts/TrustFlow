@@ -67,7 +67,7 @@ Run the worker and API in separate terminals:
 
 ```bash
 # Terminal 1: Run the blockchain sync worker
-python -m src.modules.blockchain.worker.run_worker
+uv run -m src.modules.blockchain.worker.run_worker
 
 # Terminal 2: Run the FastAPI application
 uvicorn src.main:app --reload
@@ -90,12 +90,4 @@ Environment variables (defined in `src/config.py`):
 - **Transient Errors**: Worker logs and retries on next interval
 - **Fatal Errors**: Worker logs and exits (process manager should restart)
 - **Duplicate Events**: Silently ignored via database constraints
-- **Invalid Events**: Logged and skipped, doesn't halt processing
 
-## Monitoring
-
-The worker provides structured logging:
-
-- `INFO`: Batch completions, state updates, startup/shutdown
-- `ERROR`: Connection failures, processing errors
-- `DEBUG`: Block ranges, individual event details

@@ -3,15 +3,15 @@
 from src.modules.agreements.core.exceptions.agreement_exceptions import (
     AgreementNotFoundError,
     InvalidArbitrationPolicyError,
-    InvalidStateTransitionError,
     SelfDealError,
     UnauthorizedAgreementAccessError,
+    MaxDraftAgreementsError,
 )
 
 __all__ = [
     "AgreementNotFoundError",
-    "InvalidStateTransitionError",
     "SelfDealError",
     "InvalidArbitrationPolicyError",
     "UnauthorizedAgreementAccessError",
+    "MaxDraftAgreementsError",
 ]

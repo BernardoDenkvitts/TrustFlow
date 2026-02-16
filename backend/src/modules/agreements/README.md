@@ -24,6 +24,8 @@ Agreements are the core entities in TrustFlow's escrow system. They represent a 
     *   `WITH_ARBITRATOR`: An arbitrator is required. `arbitrator_id` must be provided and valid.
 3.  **Amounts**: Must be a positive value in Wei.
 4.  **Identifiers**: Agreement IDs are 256-bit identifiers represented as `0x` followed by 64 hex characters.
+5.  **Limits**:
+    *   **Max Drafts**: A user can have at most 30 agreements in `DRAFT` status as a Payer.
 
 ## Authentication
 

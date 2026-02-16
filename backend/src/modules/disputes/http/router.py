@@ -1,10 +1,12 @@
 """Disputes API router."""
 
 
+import uuid
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
 
+from src.modules.auth.module import get_current_user_id
 from src.modules.disputes.core.services import DisputeService
 from src.modules.disputes.module import get_dispute_service
 from src.modules.disputes.schemas import DisputeResponse, ResolveDisputeRequest
@@ -21,13 +23,9 @@ router = APIRouter(prefix="/agreements", tags=["disputes"])
 async def get_dispute(
     agreement_id: str,
     service: Annotated[DisputeService, Depends(get_dispute_service)],
+    user_id: Annotated[uuid.UUID, Depends(get_current_user_id)],
 ) -> DisputeResponse:
     """Get the dispute for an agreement."""
-    # TODO: Replace with real user ID from JWT token
-    from src.modules.users.http._mock_auth import get_mock_current_user_id
-
-    user_id = get_mock_current_user_id()
-
     dispute = await service.get_dispute_for_agreement(agreement_id, user_id)
 
     return DisputeResponse.model_validate(dispute)
@@ -43,13 +41,9 @@ async def resolve_dispute(
     agreement_id: str,
     request: ResolveDisputeRequest,
     service: Annotated[DisputeService, Depends(get_dispute_service)],
+    user_id: Annotated[uuid.UUID, Depends(get_current_user_id)],
 ) -> DisputeResponse:
     """Resolve a dispute as the arbitrator."""
-    # TODO: Replace with real user ID from JWT token
-    from src.modules.users.http._mock_auth import get_mock_current_user_id
-
-    user_id = get_mock_current_user_id()
-
     dispute = await service.resolve_dispute(
         agreement_id=agreement_id,
         user_id=user_id,

@@ -6,7 +6,9 @@ from typing import Any
 from sqlalchemy import (
     JSON,
     BigInteger,
+    DateTime,
     ForeignKey,
+    Index,
     Integer,
     String,
     Text,
@@ -51,6 +53,7 @@ class OnchainEvent(Base):
     payload: Mapped[dict[str, Any]] = mapped_column(JSON, nullable=False)
 
     processed_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
         nullable=False,
         server_default=func.now(),
     )
@@ -61,6 +64,10 @@ class OnchainEvent(Base):
     __table_args__ = (
         UniqueConstraint(
             "chain_id", "tx_hash", "log_index", name="uq_onchain_events_idempotent"
+        ),
+        Index(
+            "idx_onchain_events_chain_block_log", "chain_id",
+            "block_number", "log_index"
         ),
     )
 

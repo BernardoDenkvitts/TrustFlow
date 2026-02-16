@@ -12,27 +12,6 @@ class AgreementNotFoundError(Exception):
         super().__init__(f"Agreement not found: {agreement_id}")
 
 
-class InvalidStateTransitionError(Exception):
-    """Raised when attempting an invalid status transition."""
-
-    def __init__(
-        self,
-        current_status: AgreementStatus,
-        target_status: AgreementStatus,
-        reason: str | None = None,
-    ) -> None:
-        self.current_status = current_status
-        self.target_status = target_status
-        self.reason = reason
-        message = (
-            f"Invalid state transition from {current_status.value} "
-            f"to {target_status.value}"
-        )
-        if reason:
-            message += f": {reason}"
-        super().__init__(message)
-
-
 class SelfDealError(Exception):
     """Raised when payer and payee are the same user."""
 
@@ -68,4 +47,15 @@ class UnauthorizedAgreementAccessError(Exception):
         self.agreement_id = agreement_id
         super().__init__(
             f"User {user_id} is not authorized to access agreement {agreement_id}"
+        )
+
+
+class MaxDraftAgreementsError(Exception):
+    """Raised when a user exceeds the maximum number of draft agreements."""
+
+    def __init__(self, user_id: str, max_drafts: int) -> None:
+        self.user_id = user_id
+        self.max_drafts = max_drafts
+        super().__init__(
+            f"User {user_id} has reached the maximum of {max_drafts} draft agreements"
         )

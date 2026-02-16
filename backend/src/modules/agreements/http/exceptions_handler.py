@@ -9,9 +9,9 @@ from fastapi.responses import JSONResponse
 from src.modules.agreements.core.exceptions import (
     AgreementNotFoundError,
     InvalidArbitrationPolicyError,
-    InvalidStateTransitionError,
     SelfDealError,
     UnauthorizedAgreementAccessError,
+    MaxDraftAgreementsError,
 )
 
 
@@ -32,21 +32,6 @@ def register_agreements_exception_handlers(app: FastAPI) -> None:
             content={
                 "detail": str(exc),
                 "error_code": "AGREEMENT_NOT_FOUND",
-            },
-        )
-
-    @app.exception_handler(InvalidStateTransitionError)
-    async def invalid_state_transition_handler(
-        request: Request, exc: InvalidStateTransitionError
-    ) -> JSONResponse:
-        """Handle InvalidStateTransitionError exceptions."""
-        return JSONResponse(
-            status_code=400,
-            content={
-                "detail": str(exc),
-                "error_code": "INVALID_STATE_TRANSITION",
-                "current_status": exc.current_status.value,
-                "target_status": exc.target_status.value,
             },
         )
 
@@ -85,7 +70,20 @@ def register_agreements_exception_handlers(app: FastAPI) -> None:
         return JSONResponse(
             status_code=403,
             content={
-                "detail": str(exc),
                 "error_code": "UNAUTHORIZED_AGREEMENT_ACCESS",
+            },
+        )
+
+    @app.exception_handler(MaxDraftAgreementsError)
+    async def max_draft_agreements_handler(
+        request: Request, exc: MaxDraftAgreementsError
+    ) -> JSONResponse:
+        """Handle MaxDraftAgreementsError exceptions."""
+        return JSONResponse(
+            status_code=422,
+            content={
+                "detail": str(exc),
+                "error_code": "MAX_DRAFT_AGREEMENTS_REACHED",
+                "max_drafts": exc.max_drafts,
             },
         )

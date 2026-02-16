@@ -3,7 +3,7 @@
 import uuid
 from decimal import Decimal
 
-from sqlalchemy import or_, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.modules.agreements.core.enums import AgreementStatus, ArbitrationPolicy
@@ -73,7 +73,9 @@ class AgreementRepository:
         self,
         user_id: uuid.UUID,
         status_filter: AgreementStatus | None = None,
-    ) -> list[Agreement]:
+        limit: int = 10,
+        offset: int = 0,
+    ) -> tuple[list[Agreement], int]:
         """List agreements where the user is a participant.
 
         A user is a participant if they are the payer, payee, or arbitrator.
@@ -81,25 +83,61 @@ class AgreementRepository:
         Args:
             user_id: The user's UUID.
             status_filter: Optional status to filter by.
+            limit: Maximum number of agreements to return.
+            offset: Number of agreements to skip.
 
         Returns:
-            List of Agreement entities.
+            A tuple containing:
+            - List of Agreement entities.
+            - Total count of agreements matching the filter.
         """
-        stmt = select(Agreement).where(
-            or_(
-                Agreement.payer_id == user_id,
-                Agreement.payee_id == user_id,
-                Agreement.arbitrator_id == user_id,
-            )
+        # Base condition
+        where_clause = or_(
+            Agreement.payer_id == user_id,
+            Agreement.payee_id == user_id,
+            Agreement.arbitrator_id == user_id,
         )
 
         if status_filter is not None:
-            stmt = stmt.where(Agreement.status == status_filter)
+            where_clause = (where_clause) & (Agreement.status == status_filter)
 
-        stmt = stmt.order_by(Agreement.created_at.desc())
+        # Count query
+        count_stmt = select(func.count()).where(where_clause)
+        total_result = await self._session.execute(count_stmt)
+        total = total_result.scalar_one()
+
+        # Data query
+        stmt = (
+            select(Agreement)
+            .where(where_clause)
+            .order_by(Agreement.created_at.desc())
+            .limit(limit)
+            .offset(offset)
+        )
 
         result = await self._session.execute(stmt)
-        return list(result.scalars().all())
+        return list(result.scalars().all()), total
+
+    async def count_by_user_and_status(
+        self,
+        user_id: uuid.UUID,
+        status: AgreementStatus,
+    ) -> int:
+        """Count agreements for a user with a specific status.
+
+        Args:
+            user_id: The user's UUID (checked against payer_id).
+            status: The status to filter by.
+
+        Returns:
+            The count of agreements.
+        """
+        stmt = select(func.count()).where(
+            Agreement.payer_id == user_id,
+            Agreement.status == status,
+        )
+        result = await self._session.execute(stmt)
+        return result.scalar_one()
 
     async def update_status(
         self,
