@@ -14,22 +14,6 @@ Users in TrustFlow are linked to Supabase Auth. This module manages the domain-s
 | PUT    | `/users/me`       | Update current user's wallet address|
 | GET    | `/users/{id}`     | Get user by ID                      |
 
-## Architecture
-
-```
-users/
-├── core/
-│   ├── models/          # User ORM entity
-│   ├── services/        # Business logic (UserService)
-│   └── exceptions/      # Domain exceptions
-├── schemas/             # Pydantic DTOs
-├── http/
-│   ├── router.py        # API endpoints
-│   ├── exceptions_handler.py  # HTTP error handling
-│   └── _mock_auth.py    # Temporary auth mock
-├── persistence/         # UserRepository
-└── module.py            # Dependency injection wiring
-```
 
 ## Business Rules
 
@@ -37,8 +21,8 @@ users/
 2. **Unique Constraints**: Email and wallet address must be unique per user
 
 ## Authentication
-
-Currently mocked. Will use Supabase JWT validation.
+ 
+Uses JWT validation via `src.modules.auth`.
 
 ## Example Usage
 

@@ -43,8 +43,8 @@ class Settings(BaseSettings):
     refresh_token_duration: int = int(24 * 60 * 60) * 15  # 15 days
 
     google_redirect_uri: str = "http://localhost:8000/api/auth/callback/google"
-    google_client_id: str | None = "31283781970-m7535tn8c68qqp15bra89p4tn6uei76k.apps.googleusercontent.com"
-    google_client_secret: str | None = "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"
+    google_client_id: str | None = ""
+    google_client_secret: str | None = ""
 
     # Session Management
     max_sessions_per_user: int = 5

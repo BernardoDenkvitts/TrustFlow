@@ -3,6 +3,7 @@
 import re
 import uuid
 
+from src.modules.users.core.enums.user_enums import OAuthProvider
 from src.modules.users.core.exceptions import (
     InvalidWalletAddressError,
     UserNotFoundError,
@@ -75,3 +76,76 @@ class UserService:
             user, normalized_address
         )
         return updated_user
+
+    async def get_user_by_oauth(
+        self, provider: OAuthProvider, oauth_id: str
+    ) -> User | None:
+        """Get a user by their OAuth provider and ID.
+
+        Args:
+            provider: The OAuth provider.
+            oauth_id: The OAuth ID.
+
+        Returns:
+            The user entity if found, None otherwise.
+        """
+        return await self._repository.find_by_oauth(provider, oauth_id)
+
+    async def get_user_by_email(self, email: str) -> User | None:
+        """Get a user by their email.
+
+        Args:
+            email: The email address.
+
+        Returns:
+            The user entity if found, None otherwise.
+        """
+        return await self._repository.find_by_email(email)
+
+    async def create_user_oauth(
+        self, email: str, oauth_provider: OAuthProvider, oauth_id: str
+    ) -> User:
+        """Create a new user via OAuth.
+
+        Args:
+            email: The user's email address.
+            oauth_provider: The OAuth provider.
+            oauth_id: The OAuth ID.
+
+        Returns:
+            The created user entity.
+
+        Raises:
+            UserAlreadyExistsError: If a user with the same email exists.
+        """
+        # Generate a new UUID for the user
+        user_id = uuid.uuid4()
+
+        return await self._repository.create(
+            user_id=user_id,
+            email=email,
+            oauth_provider=oauth_provider,
+            oauth_id=oauth_id,
+        )
+
+    async def update_oauth_info(
+        self, user_id: uuid.UUID, provider: OAuthProvider, oauth_id: str
+    ) -> User:
+        """Update a user's OAuth info.
+
+        Args:
+            user_id: The UUID of the user.
+            provider: The OAuth provider.
+            oauth_id: The OAuth ID.
+
+        Returns:
+            The updated user entity.
+
+        Raises:
+            UserNotFoundError: If the user is not found.
+        """
+        user = await self._repository.find_by_id(user_id)
+        if user is None:
+            raise UserNotFoundError(str(user_id))
+
+        return await self._repository.update_oauth_info(user, provider, oauth_id)

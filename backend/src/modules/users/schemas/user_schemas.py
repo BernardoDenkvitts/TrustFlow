@@ -20,7 +20,7 @@ class UserResponse(BaseModel):
         description="User's unique identifier (same as Supabase Auth)"
     )
     email: str = Field(description="User's email address")
-    wallet_address: str = Field(
+    wallet_address: str | None = Field(
         description="User's Ethereum wallet address (lowercase normalized)"
     )
     created_at: datetime = Field(description="When the user was created")
