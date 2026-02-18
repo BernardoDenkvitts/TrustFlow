@@ -32,7 +32,7 @@ class Settings(BaseSettings):
 
     # Sync Worker
     sync_interval_seconds: int = 15
-    confirmations: int = 2
+    confirmations: int = 3
 
     # Auth
     jwt_secret_key: str = "changeme"
@@ -43,6 +43,7 @@ class Settings(BaseSettings):
     refresh_token_duration: int = int(24 * 60 * 60) * 15  # 15 days
 
     google_redirect_uri: str = "http://localhost:8000/api/auth/callback/google"
+
     google_client_id: str | None = ""
     google_client_secret: str | None = ""
 

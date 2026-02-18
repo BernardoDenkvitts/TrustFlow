@@ -1,21 +1,20 @@
--- Active: 1770210023288@@localhost@5432@trustflow
 # Worker Testing - Complete Guide
 
 This guide provides step-by-step instructions for testing the blockchain synchronization worker locally.
 
 ## Prerequisites
 
-- Anvil (Foundry's local Ethereum node)
+- Docker & Docker Compose
+- Foundry (forge CLI)
 - PostgreSQL test database
-- Python dependencies: `web3`, `requests`, `asyncpg`, `python-dotenv`
 
 ## Quick Start
 
 ### 1. Start Anvil
 
 ```bash
-cd smart_contract
-anvil
+cd backend
+docker-compose up -d
 ```
 
 Leave running - note the test accounts shown in output.
@@ -73,7 +72,7 @@ Expected output:
 ```bash
 # Terminal 2
 cd backend
-uv run uvicorn src.main:app --reload --port 8000
+uv run uvicorn src.main:app
 ```
 
 ### 6. Start Worker
@@ -88,17 +87,18 @@ uv run python -m src.modules.blockchain.worker.run_worker
 
 ```bash
 # Terminal 4
-cd backend
-uv run python tests/integration/blockchain/interact.py
+cd backend/tests/
+uv run python integration/blockchain/interact.py
 ```
 
 ### 8. Verify Results
 
 ```bash
-uv run python tests/integration/blockchain/verify_worker.py
+cd backend/tests/
+uv run python integration/blockchain/verify_worker.py
 ```
 
-Expected: "🎉 All verifications passed!"
+Expected: "All verifications passed!"
 
 ## Test Scenarios
 
@@ -106,7 +106,7 @@ The `interact.py` script runs these scenarios:
 
 1. **Happy Path**: DRAFT → PENDING_FUNDING → CREATED → FUNDED → RELEASED
 2. **Dispute Flow**: Agreement with arbitrator, dispute opened, arbitrator releases payment
-3. **Refund Flow**: Dispute resolved with refund (TODO)
+3. **Refund Flow**: Dispute resolved with refund
 
 ## Troubleshooting
 
@@ -131,9 +131,4 @@ The `interact.py` script runs these scenarios:
 # 1. Stop worker (Ctrl+C)
 # 2. Reset database
 psql $DATABASE_URL -c "TRUNCATE onchain_events, agreements, disputes, users, chain_sync_state CASCADE;"
-
-# 3. Restart Anvil (Ctrl+C and restart)
-anvil
-
-# 4. Redeploy contract and repeat from step 2
 ```

@@ -14,17 +14,14 @@ import asyncio
 import os
 
 import asyncpg
+from pathlib import Path
 from dotenv import load_dotenv
 from web3 import Web3
 
-# Load test environment variables
+
 load_dotenv(".env.test")
 
-DATABASE_URL = os.getenv("DATABASE_URL", "").replace("postgresql+asyncpg://", "postgresql://")
-
-print(DATABASE_URL)
-
-RPC_URL = os.getenv("RPC_URL", "http://127.0.0.1:8545")
+DATABASE_URL = os.getenv("DATABASE_URL").replace("postgresql+asyncpg://", "postgresql://")
 
 # Anvil default test accounts
 PAYER_ADDRESS = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"  # Anvil account #0
@@ -32,7 +29,7 @@ PAYEE_ADDRESS = "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"  # Anvil account #1
 ARBITRATOR_ADDRESS = "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC"  # Anvil account #2
 
 # Test user UUIDs (fixed for consistency)
-MOCK_PAYER_ID = "11111111-1111-1111-1111-111111111111"  # Matches _mock_auth.py
+MOCK_PAYER_ID = "11111111-1111-1111-1111-111111111111"
 MOCK_PAYEE_ID = "22222222-2222-2222-2222-222222222222"
 MOCK_ARBITRATOR_ID = "33333333-3333-3333-3333-333333333333"
 
@@ -56,13 +53,14 @@ async def create_test_users() -> None:
         for user_id, email, wallet in users:
             # Insert user if not exists
             query = """
-                INSERT INTO users (id, email, wallet_address, created_at, updated_at)
-                VALUES ($1, $2, $3, NOW(), NOW())
+                INSERT INTO users (id, email, wallet_address, oauth_provider, oauth_id, created_at, updated_at)
+                VALUES ($1, $2, $3, $4, $5, NOW(), NOW())
                 ON CONFLICT (email) DO UPDATE
                 SET wallet_address = EXCLUDED.wallet_address
                 RETURNING id
             """
-            result = await conn.fetchval(query, user_id, email, wallet)
+            # Passing None for oauth_provider and oauth_id
+            result = await conn.fetchval(query, user_id, email, wallet, None, None)
             
             if result:
                 print(f"User: {email:25s} | ID: {user_id} | Wallet: {wallet[:16]}...")
@@ -88,4 +86,5 @@ async def create_test_users() -> None:
 
 
 if __name__ == "__main__":
+    print("DATABASE_URL: ", DATABASE_URL)
     asyncio.run(create_test_users())

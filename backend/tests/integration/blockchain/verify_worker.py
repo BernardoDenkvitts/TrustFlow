@@ -10,7 +10,6 @@ Usage:
 
 import asyncio
 import os
-from decimal import Decimal
 
 import asyncpg
 from dotenv import load_dotenv
@@ -52,7 +51,7 @@ async def verify_events(conn: asyncpg.Connection) -> tuple[bool, int]:
     
     # Check for expected event types
     event_names = {event['event_name'] for event in events}
-    required_events = ["AGREEMENT_CREATED", "PAYMENT_FUNDED", "PAYMENT_RELEASED"]
+    required_events = ["AGREEMENT_CREATED", "PAYMENT_FUNDED", "PAYMENT_RELEASED", "PAYMENT_REFUNDED"]
     
     passed = all(event in event_names for event in required_events)
     print_result(
@@ -224,8 +223,7 @@ async def main() -> None:
         results['users'] = await verify_users(conn)
         results['disputes'] = await verify_disputes(conn)
         results['sync_state'] = await verify_sync_state(conn)
-        
-        # Summary
+
         print_section("Verification Summary")
         
         total_checks = len(results)
