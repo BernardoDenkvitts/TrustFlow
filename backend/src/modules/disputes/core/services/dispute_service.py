@@ -4,10 +4,10 @@ import uuid
 
 from src.modules.agreements.core.exceptions import AgreementNotFoundError
 from src.modules.agreements.persistence import AgreementRepository
-from src.modules.disputes.core.enums import DisputeResolution, DisputeStatus
 from src.modules.disputes.core.exceptions import (
     DisputeAlreadyResolvedError,
     DisputeNotFoundError,
+    DisputeNotYetResolvedError,
     UnauthorizedArbitratorError,
     UnauthorizedDisputeAccessError,
 )
@@ -89,25 +89,22 @@ class DisputeService:
 
         return dispute
 
-    async def resolve_dispute(
+    async def submit_justification(
         self,
         agreement_id: str,
         user_id: uuid.UUID,
-        resolution: DisputeResolution,
         justification: str,
-        resolution_tx_hash: str,
     ) -> Dispute:
-        """Resolve a dispute.
+        """Submit the arbitrator's justification for a resolved dispute.
 
-        Records the arbitrator's decision. This is for audit purposes only -
-        the actual on-chain release/refund is executed separately.
+        The dispute must already be synced as resolved (worker has detected
+        the PaymentReleased or PaymentRefunded event and updated the record)
+        before justification can be submitted.
 
         Args:
             agreement_id: The agreement identifier.
-            user_id: The user resolving the dispute (must be arbitrator).
-            resolution: The resolution outcome (RELEASE or REFUND).
-            justification: The arbitrator's reasoning.
-            resolution_tx_hash: The transaction hash from on-chain resolution.
+            user_id: The user submitting the justification (must be arbitrator).
+            justification: The arbitrator's reasoning for the resolution.
 
         Returns:
             The updated Dispute entity.
@@ -116,7 +113,8 @@ class DisputeService:
             AgreementNotFoundError: If the agreement doesn't exist.
             UnauthorizedArbitratorError: If user is not the arbitrator.
             DisputeNotFoundError: If no dispute exists for the agreement.
-            DisputeAlreadyResolvedError: If dispute is already resolved.
+            DisputeNotYetResolvedError: If the dispute has not been resolved on-chain yet.
+            DisputeAlreadyResolvedError: If justification has already been submitted.
         """
         # Verify agreement exists
         agreement = await self._agreement_repo.find_by_id(agreement_id)
@@ -132,16 +130,17 @@ class DisputeService:
         if dispute is None:
             raise DisputeNotFoundError(agreement_id)
 
-        # Verify dispute is still open
-        if dispute.status != DisputeStatus.OPEN:
+        # Worker must have already resolved the dispute on-chain
+        if dispute.resolution is None:
+            raise DisputeNotYetResolvedError(dispute.id)
+
+        # Justification can only be submitted once
+        if dispute.justification is not None:
             raise DisputeAlreadyResolvedError(dispute.id)
 
-        # Record resolution
-        updated_dispute = await self._dispute_repo.resolve(
+        updated_dispute = await self._dispute_repo.set_justification(
             dispute=dispute,
-            resolution=resolution,
             justification=justification,
-            resolution_tx_hash=resolution_tx_hash,
         )
 
         return updated_dispute

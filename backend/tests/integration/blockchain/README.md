@@ -49,7 +49,8 @@ cd backend
 uv run alembic upgrade head
 
 # Create test users
-uv run python tests/integration/blockchain/setup_users.py
+cd backend/tests/
+uv run python integration/blockchain/setup_users.py
 ```
 
 Expected output:

@@ -2,10 +2,10 @@
 
 from src.modules.disputes.schemas.dispute_schemas import (
     DisputeResponse,
-    ResolveDisputeRequest,
+    SubmitJustificationRequest,
 )
 
 __all__ = [
     "DisputeResponse",
-    "ResolveDisputeRequest",
+    "SubmitJustificationRequest",
 ]

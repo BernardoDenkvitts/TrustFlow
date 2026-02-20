@@ -186,8 +186,8 @@ def send_transaction(contract: Contract, account: Any, function_name: str, *args
             print(f"  Revert reason: {e}")
             
     # Mine extra blocks to satisfy worker confirmation requirement
-    mine_blocks(2)
-            
+    mine_blocks(3)
+       
     return tx_hash.hex()
     
     

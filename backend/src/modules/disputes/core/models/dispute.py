@@ -77,8 +77,6 @@ class Dispute(Base):
     opener = relationship("User", foreign_keys=[opened_by], lazy="joined")
 
     __table_args__ = (
-        # Constraint: OPEN disputes must not have resolution fields set
-        # RESOLVED disputes must have all resolution fields set
         CheckConstraint(
             "(status = 'OPEN' "
             "AND resolved_at IS NULL "
@@ -89,8 +87,7 @@ class Dispute(Base):
             "(status = 'RESOLVED' "
             "AND resolved_at IS NOT NULL "
             "AND resolution IS NOT NULL "
-            "AND resolution_tx_hash IS NOT NULL "
-            "AND justification IS NOT NULL)",
+            "AND resolution_tx_hash IS NOT NULL)",
             name="ck_disputes_status_consistency",
         ),
     )

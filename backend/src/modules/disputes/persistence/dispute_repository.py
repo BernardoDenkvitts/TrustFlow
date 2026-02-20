@@ -56,9 +56,6 @@ class DisputeRepository:
     ) -> Dispute:
         """Create a new dispute.
 
-        This is called by the blockchain sync worker when
-        processing a DISPUTE_OPENED event.
-
         Args:
             agreement_id: The agreement identifier.
             opened_by: UUID of the user who opened the dispute.
@@ -86,7 +83,7 @@ class DisputeRepository:
         self,
         dispute: Dispute,
         resolution: DisputeResolution,
-        justification: str,
+        justification: str | None,
         resolution_tx_hash: str,
     ) -> Dispute:
         """Resolve a dispute.
@@ -105,6 +102,25 @@ class DisputeRepository:
         dispute.justification = justification
         dispute.resolution_tx_hash = resolution_tx_hash
         dispute.resolved_at = datetime.now()
+        await self._session.flush()
+        await self._session.refresh(dispute)
+        return dispute
+
+    async def set_justification(
+        self,
+        dispute: Dispute,
+        justification: str,
+    ) -> Dispute:
+        """Set the arbitrator's justification on an already-synced dispute.
+
+        Args:
+            dispute: The dispute entity to update.
+            justification: The arbitrator's reasoning for the resolution.
+
+        Returns:
+            The updated Dispute entity.
+        """
+        dispute.justification = justification
         await self._session.flush()
         await self._session.refresh(dispute)
         return dispute

@@ -42,6 +42,7 @@ async def get_google_auth_url(
     "/callback/google",
     summary="Google OAuth Callback",
     description="Handle Google OAuth callback and create session.",
+    include_in_schema=False
 )
 async def login_with_google(
     code: str,
@@ -54,7 +55,9 @@ async def login_with_google(
         url=f"{settings.frontend_url}/auth/success",
         status_code=status.HTTP_302_FOUND,
     )
-    print("refresh ", refresh_token)
+
+    print("[DEBUG] REFRESH TOKEN: ", refresh_token)
+
     response.set_cookie(
         key=settings.refresh_cookie_name,
         value=refresh_token,
@@ -64,7 +67,6 @@ async def login_with_google(
         path=settings.refresh_cookie_path,
         max_age=settings.refresh_token_duration
     )
-    
     return response
 
 

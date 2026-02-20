@@ -30,18 +30,11 @@ class DisputeResponse(BaseModel):
     resolved_at: datetime | None = Field(description="When the dispute was resolved")
 
 
-class ResolveDisputeRequest(BaseModel):
-    """Request schema for resolving a dispute."""
+class SubmitJustificationRequest(BaseModel):
+    """Request schema for submitting an arbitrator's justification."""
 
-    resolution: DisputeResolution = Field(
-        description="Resolution outcome: RELEASE (to payee) or REFUND (to payer)"
-    )
     justification: str = Field(
         description="Arbitrator's reasoning for the resolution",
         min_length=10,
         max_length=2000,
-    )
-    resolution_tx_hash: str = Field(
-        description="Transaction hash from the on-chain resolution",
-        pattern=r"^0x[a-fA-F0-9]{64}$",
     )

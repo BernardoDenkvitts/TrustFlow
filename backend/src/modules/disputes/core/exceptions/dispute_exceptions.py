@@ -27,6 +27,16 @@ class DisputeAlreadyResolvedError(Exception):
         super().__init__(f"Dispute already resolved: {dispute_id}")
 
 
+class DisputeNotYetResolvedError(Exception):
+    """Raised when arbitrator submits justification before the dispute is resolved on-chain."""
+
+    def __init__(self, dispute_id: uuid.UUID | str) -> None:
+        self.dispute_id = dispute_id
+        super().__init__(
+            f"Dispute {dispute_id} has not been resolved on-chain yet."
+        )
+
+
 class UnauthorizedDisputeAccessError(Exception):
     """Raised when a user attempts to access a dispute they're not part of."""
 

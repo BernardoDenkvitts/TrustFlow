@@ -2,10 +2,6 @@
 
 This module handles user profile management for TrustFlow.
 
-## Overview
-
-Users in TrustFlow are linked to Supabase Auth. This module manages the domain-specific user profile data (wallet address) separate from authentication.
-
 ## Endpoints
 
 | Method | Path              | Description                         |
@@ -21,17 +17,20 @@ Users in TrustFlow are linked to Supabase Auth. This module manages the domain-s
 2. **Unique Constraints**: Email and wallet address must be unique per user
 
 ## Authentication
- 
-Uses JWT validation via `src.modules.auth`.
+
+`GET /users/me` and `PUT /users/me` require a valid JWT (`Authorization: Bearer <token>`).
+`GET /users/{id}` is public.
 
 ## Example Usage
 
 ```bash
 # Get current user
-curl http://localhost:8000/api/v1/users/me
+curl http://localhost:8000/api/v1/users/me \
+  -H "Authorization: Bearer <token>"
 
 # Update wallet address
 curl -X PUT http://localhost:8000/api/v1/users/me \
+  -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
   -d '{"wallet_address": "0x1234567890abcdef1234567890abcdef12345678"}'
 

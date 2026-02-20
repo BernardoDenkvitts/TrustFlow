@@ -9,7 +9,7 @@ from fastapi import APIRouter, Depends
 from src.modules.auth.module import get_current_user_id
 from src.modules.disputes.core.services import DisputeService
 from src.modules.disputes.module import get_dispute_service
-from src.modules.disputes.schemas import DisputeResponse, ResolveDisputeRequest
+from src.modules.disputes.schemas import DisputeResponse, SubmitJustificationRequest
 
 router = APIRouter(prefix="/agreements", tags=["disputes"])
 
@@ -34,22 +34,23 @@ async def get_dispute(
 @router.post(
     "/{agreement_id}/dispute/resolve",
     response_model=DisputeResponse,
-    summary="Resolve a dispute",
-    description="Resolve a dispute. Only the arbitrator can resolve disputes.",
+    summary="Submit dispute justification",
+    description=(
+        "Submit the arbitrator's justification for a resolved dispute. "
+        "The dispute must already be resolved on-chain before this can be called."
+    ),
 )
-async def resolve_dispute(
+async def submit_justification(
     agreement_id: str,
-    request: ResolveDisputeRequest,
+    request: SubmitJustificationRequest,
     service: Annotated[DisputeService, Depends(get_dispute_service)],
     user_id: Annotated[uuid.UUID, Depends(get_current_user_id)],
 ) -> DisputeResponse:
-    """Resolve a dispute as the arbitrator."""
-    dispute = await service.resolve_dispute(
+    """Submit the arbitrator's justification for an on-chain resolved dispute."""
+    dispute = await service.submit_justification(
         agreement_id=agreement_id,
         user_id=user_id,
-        resolution=request.resolution,
         justification=request.justification,
-        resolution_tx_hash=request.resolution_tx_hash,
     )
 
     return DisputeResponse.model_validate(dispute)

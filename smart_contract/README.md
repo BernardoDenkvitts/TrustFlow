@@ -14,16 +14,16 @@ The TrustFlowEscrow contract provides:
 ## Prerequisites
 
 - [Foundry](https://book.getfoundry.sh/getting-started/installation) installed
-- Local Ethereum node (Anvil) for development
+- Local Ethereum node (Anvil) 
 
 ## Quick Start
 
-### Installation
+### Local Installation
 
 1. **Initialize Submodules** (after cloning):
    ```bash
    cd TrustFlow/smart_contract
-   git submodule update --init --recursive
+   git submodule update --init --recursive # installs Foundry library dependencies
    ```
 
 2. **Install dependencies**:
