@@ -1,5 +1,3 @@
-# TrustFlow
-
 <div align="center">
   <h1>🛡️ TrustFlow</h1>
   <p><strong>Secure, trustless escrow payment platform backed by Ethereum smart contracts.</strong></p>
@@ -115,16 +113,16 @@ flowchart TD
 
 ```mermaid
 stateDiagram-v2
-    [*] --> DRAFT
+    [*] --> DRAFT : off-chain (API)
 
-    DRAFT --> CREATED : createAgreement() — payer
-    CREATED --> FUNDED : fund() — payer
+    DRAFT --> CREATED : createAgreement() on-chain
+    CREATED --> FUNDED : fund() on-chain
 
-    FUNDED --> RELEASED : release() — payer
-    FUNDED --> DISPUTED : openDispute() — payer or payee
+    FUNDED --> RELEASED : release() on-chain
+    FUNDED --> DISPUTED : openDispute() on-chain
 
-    DISPUTED --> RELEASED : release() — arbitrator
-    DISPUTED --> REFUNDED : refund() — arbitrator
+    DISPUTED --> RELEASED : release() on-chain
+    DISPUTED --> REFUNDED : refund() on-chain
 
     RELEASED --> [*]
     REFUNDED --> [*]
