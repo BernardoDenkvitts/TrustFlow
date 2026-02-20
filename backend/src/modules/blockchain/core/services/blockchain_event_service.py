@@ -166,7 +166,7 @@ class BlockchainEventService:
             await self._dispute_repo.resolve(
                 dispute=dispute,
                 resolution=DisputeResolution.RELEASE,
-                justification="Resolved on-chain via release",
+                justification=None,
                 resolution_tx_hash=event.tx_hash
             )
 
@@ -186,6 +186,6 @@ class BlockchainEventService:
             await self._dispute_repo.resolve(
                 dispute=dispute,
                 resolution=DisputeResolution.REFUND,
-                justification="Resolved on-chain via refund",
+                justification=None,
                 resolution_tx_hash=event.tx_hash
             )
