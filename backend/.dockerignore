@@ -1,0 +1,37 @@
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*.pyo
+
+# UV cache
+.uv/
+
+# Tests and linting
+.pytest_cache/
+.ruff_cache/
+.coverage
+tests/
+
+# IDE
+.idea/
+.vscode/
+
+# Git
+.git/
+.gitignore
+
+# Docs
+*.md
+
+# Environment files
+.env
+.env.*
+*.env
+
+# Agent
+.agent/

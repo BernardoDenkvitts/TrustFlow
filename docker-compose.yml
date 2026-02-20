@@ -1,0 +1,94 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: trustflow-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: trustflow
+      POSTGRES_PASSWORD: trustflow
+      POSTGRES_DB: trustflow
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U trustflow"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  anvil:
+    image: ghcr.io/foundry-rs/foundry:latest
+    ports:  
+      - "8545:8545"
+    container_name: trustflow-anvil
+    entrypoint: ["anvil"]
+    command: ["--host", "0.0.0.0"]
+    healthcheck:
+      test: ["CMD-SHELL", "cast block-number --rpc-url http://localhost:8545"]
+      interval: 3s
+      timeout: 5s
+      retries: 15
+
+  deploy-contract:
+    image: ghcr.io/foundry-rs/foundry:latest
+    container_name: trustflow-deploy
+    volumes:
+      - ./smart_contract:/app
+    working_dir: /app
+    entrypoint: ["forge"]
+    command:
+      - "script"
+      - "script/Deploy.s.sol"
+      - "--rpc-url"
+      - "http://anvil:8545"
+      - "--broadcast"
+    depends_on:
+      anvil:
+        condition: service_healthy
+    restart: "no"
+
+  backend:
+    build: ./backend
+    container_name: trustflow-backend
+    environment:
+      DATABASE_URL: postgresql+asyncpg://trustflow:trustflow@postgres:5432/trustflow
+      RPC_URL: http://anvil:8545
+    depends_on:
+      postgres:
+        condition: service_healthy
+      anvil:
+        condition: service_healthy
+      deploy-contract:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health')\""]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  worker:
+    build: ./backend
+    container_name: trustflow-worker
+    command: uv run python -m src.modules.blockchain.worker.run_worker
+    environment:
+      DATABASE_URL: postgresql+asyncpg://trustflow:trustflow@postgres:5432/trustflow
+      RPC_URL: http://anvil:8545
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: on-failure
+
+
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: nginx
+    ports:
+      - "8000:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  postgres_data:

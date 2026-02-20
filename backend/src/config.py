@@ -39,7 +39,8 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 30
     refresh_cookie_name: str = "refresh_token"
-    refresh_cookie_path: str = "/api/auth"
+    # In production this would be set to "/api/auth/"
+    refresh_cookie_path: str = "/"
     refresh_token_duration: int = int(24 * 60 * 60) * 15  # 15 days
 
     google_redirect_uri: str = "http://localhost:8000/api/auth/callback/google"
