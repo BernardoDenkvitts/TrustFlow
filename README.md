@@ -64,6 +64,7 @@ All financial actions are executed directly by user wallets on the smart contrac
 ```mermaid
 flowchart TD
     CLIENT([Client / Browser])
+    NGINX["Nginx (API Gateway)"]
 
     subgraph api["FastAPI Backend"]
         AUTH["/auth"]
@@ -80,10 +81,11 @@ flowchart TD
     EVM["Anvil / EVM Node<br/>TrustFlowEscrow.sol"]
     DB[("PostgreSQL")]
 
-    CLIENT --> api
+    CLIENT --> NGINX
+    NGINX --> api
     api --> DB
 
-    EVM -- "events (logs)" --> worker
+    worker -- "events (logs)" --> EVM
     worker --> DB
 ```
 
